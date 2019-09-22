@@ -19,14 +19,6 @@ void PWM_ON(void) {
     TA0CCR1 = 2000;              //controls duty cycle (us)
     TA0CTL = TASSEL_2 | MC_1;    //TASSEL selects SMCLK as clock source and MC_1 tells it to count up to the value in TA0CCR0
     TA0CCTL1 = OUTMOD_7;
-
-    unsigned int CLKcounter = 0;
-    while (CLKcounter < 50) {
-        if (TA0CTL == TA0CCR1) {
-            CLKcounter++;
-        }
-    }
-    TA0CCR1 = 1000;
 }
 
 void PWM_OFF(void) {

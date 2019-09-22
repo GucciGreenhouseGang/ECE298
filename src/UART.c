@@ -7,18 +7,11 @@
 #include <msp430fr4133.h>
 #include "UART.h"
 
+
+
+
 void configure_UART(void) {
-    // CONFIGURE USCI_A0 FOR UART AT 9600 BAUD RATE
-    UCA0CTLW0 |= UCSWRST;                      // Put eUSCI in reset
-
-    UCA0CTLW0 |= UCSSEL__SMCLK;               // CLK = SMCLK
-    // Baud Rate Setting
-    // Use Table 21-5
-    UCA0BRW = 104;
-    UCA0MCTLW |= UCOS16 | UCBRF_2 | 0xD600;   //0xD600 is UCBRSx = 0xD6
-
-    UCA0CTLW0 &= ~UCSWRST;                    // Initialize eUSCI
-    UCA0IE |= UCRXIE;                         // Enable USCI_A0 RX interrupt
+    P1SEL0 |= BIT0 | BIT1;
 
     // INITIALIZE CLOCK TO 16MHz
     // Configure one FRAM waitstate as required by the device datasheet for MCLK
@@ -38,6 +31,18 @@ void configure_UART(void) {
     while(CSCTL7 & (FLLUNLOCK0 | FLLUNLOCK1));      // FLL locked
 
     CSCTL4 = SELMS__DCOCLKDIV | SELA__REFOCLK;
+
+    // CONFIGURE USCI_A0 FOR UART AT 9600 BAUD RATE
+    UCA0CTLW0 |= UCSWRST;                      // Put eUSCI in reset
+
+    UCA0CTLW0 |= UCSSEL__SMCLK;               // CLK = SMCLK
+    // Baud Rate Setting
+    // Use Table 21-5
+    UCA0BRW = 104;
+    UCA0MCTLW |= UCOS16 | UCBRF_2 | 0xD600;   //0xD600 is UCBRSx = 0xD6
+
+    UCA0CTLW0 &= ~UCSWRST;                    // Initialize eUSCI
+    UCA0IE |= UCRXIE;                         // Enable USCI_A0 RX interrupt
 }
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
@@ -49,6 +54,7 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR (void)
 #error Compiler not supported!
 #endif
 {
+  uint8_t i = 0;
   switch(__even_in_range(UCA0IV, USCI_UART_UCTXCPTIFG))
   {
     case USCI_NONE: break;
